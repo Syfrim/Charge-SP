@@ -116,6 +116,22 @@ public class ChargeGame : MonoBehaviour
         if (!playerLockedIn)
             playerChoice = "Charge";
 
+        // Handle insufficient charges for player
+        if ((playerChoice == "Attack" && playerCharge < 1) || 
+            (playerChoice == "Skill 1" && playerCharge < 3) || 
+            (playerChoice == "Skill 2" && playerCharge < 3))
+        {
+            playerChoice = "Charge"; // Treat as a "Charge" move
+        }
+
+        // Handle insufficient charges for opponent
+        if ((opponentChoice == "Attack" && opponentCharge < 1) || 
+            (opponentChoice == "Skill 1" && opponentCharge < 3) || 
+            (opponentChoice == "Skill 2" && opponentCharge < 3))
+        {
+            opponentChoice = "Charge"; // Treat as a "Charge" move
+        }
+
         // Game Logic for Resolving Choices
         if (playerChoice == "Attack" && opponentChoice == "Attack")
         {
@@ -230,6 +246,7 @@ public class ChargeGame : MonoBehaviour
         CheckGameOver();
         ResetRound();
     }
+
 
 
 
