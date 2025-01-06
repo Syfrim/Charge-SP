@@ -36,6 +36,7 @@ public class ChargeGame : MonoBehaviour
     public TextMeshProUGUI roundText;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI resultText;
+    public GameObject resultBackground;
     public Button chargeButton;
     public Button attackButton;
     public Button defendButton;
@@ -55,6 +56,7 @@ public class ChargeGame : MonoBehaviour
         defendButton.onClick.AddListener(() => PlayerChoice("Defend"));
         skill1Button.onClick.AddListener(() => PlayerChoice("Skill 1"));
         skill2Button.onClick.AddListener(() => PlayerChoice("Skill 2"));
+        resultBackground.SetActive(false);
     }
 
     void Update()
@@ -279,6 +281,9 @@ public class ChargeGame : MonoBehaviour
     void EndGame()
     {
         roundActive = false;
+
+        resultBackground.SetActive(true);
+
 
         if (playerHearts <= 0)
         {
