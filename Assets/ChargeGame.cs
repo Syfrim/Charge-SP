@@ -11,12 +11,16 @@ using UnityEngine;
 // Unity C# Script for "Charge" Game Prototype
 // Fixed Step: Round Updates Every 5 Seconds
 
-using UnityEngine;
+
 using UnityEngine.UI;
 using TMPro;
 
 public class ChargeGame : MonoBehaviour
 {
+
+    public ButtonHighlightManager buttonHighlightManager;
+
+
     // Game Variables
     private int playerHearts = 3;
     private int opponentHearts = 3;
@@ -36,16 +40,100 @@ public class ChargeGame : MonoBehaviour
     public TextMeshProUGUI roundText;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI resultText;
+   
     public GameObject resultBackground;
+    public GameObject damageScreen;
+    
+    public AudioSource damageSound;
+    public AudioSource attackSound;
+    public AudioSource chargeSound;
+    public AudioSource defendSound;
+    public AudioSource breakSound;
+    public AudioSource blockSound;
+    public AudioSource explosionSound;
+    public AudioSource skill1Sound;
+    public AudioSource skill2Sound;
+
     public Button chargeButton;
     public Button attackButton;
     public Button defendButton;
     public Button skill1Button;
     public Button skill2Button;
 
+    public Animator playerAnimator;
+
     // Timer
     private float timer = 5f;
     private bool roundActive = true;
+    private float damageScreenTimer = 0f;
+
+    void HandleAttack(bool isPlayerAttack)
+    {
+        if (isPlayerAttack)
+        {
+            opponentHearts--;
+            if (attackSound != null)
+            {
+                Debug.Log("Playing attackSound");
+                attackSound.Play();
+            }
+            else
+            {
+                Debug.LogWarning("attackSound is not assigned!");
+            }
+        }
+    }
+
+    void PlayDefendSound()
+    {
+        if (defendSound != null)
+        {
+            defendSound.Play(); // Play the defend sound effect
+        }
+    }
+
+    void PlayBreakSound()
+    {
+        if (breakSound != null)
+        {
+            breakSound.Play(); // Play the break sound effect
+        }
+    }
+
+    void PlayBlockSound()
+    {
+        if (blockSound != null)
+        {
+            blockSound.Play(); // Play the block sound effect
+        }
+    }
+
+    void PlayExplosionSound()
+    {
+        if (explosionSound != null)
+        {
+            explosionSound.Play(); // Play the block sound effect
+        }
+    }
+
+    void PlaySkill1Sound()
+    {
+        if (skill1Sound != null)
+        {
+            skill1Sound.Play(); // Play the sound effect for Skill 1
+        }
+    }
+
+    void PlaySkill2Sound()
+    {
+        if (skill2Sound != null)
+        {
+            skill2Sound.Play(); // Play the sound effect for Skill 1
+        }
+    }
+
+
+
 
     void Start()
     {
@@ -57,6 +145,7 @@ public class ChargeGame : MonoBehaviour
         skill1Button.onClick.AddListener(() => PlayerChoice("Skill 1"));
         skill2Button.onClick.AddListener(() => PlayerChoice("Skill 2"));
         resultBackground.SetActive(false);
+        damageScreen.SetActive(false);
     }
 
     void Update()
@@ -68,6 +157,9 @@ public class ChargeGame : MonoBehaviour
 
             if (timer <= 0)
             {
+                timer = 0; // Prevent negative values
+            
+                roundActive = false;
                 ProcessRound();
                 roundNumber++; // Increment round number
                 Debug.Log("Round Number: " + roundNumber); // Debug check
@@ -75,6 +167,16 @@ public class ChargeGame : MonoBehaviour
                 UpdateUI(); // Update UI to reflect the new round number
             }
         }
+
+        if (damageScreenTimer > 0)
+        {
+                damageScreenTimer -= Time.deltaTime;
+                if (damageScreenTimer <= 0)
+                {
+                    damageScreen.SetActive(false); // Turn off damage screen after 0.3 seconds
+                }
+        }
+        
     }
 
 
@@ -84,6 +186,18 @@ public class ChargeGame : MonoBehaviour
         {
             playerChoice = choice;
             playerLockedIn = true;
+
+            if (choice == "Attack")
+                buttonHighlightManager.HighlightButton(attackButton);
+            else if (choice == "Charge")
+                buttonHighlightManager.HighlightButton(chargeButton);
+            else if (choice == "Defend")
+                buttonHighlightManager.HighlightButton(defendButton);
+            else if (choice == "Skill 1")
+                buttonHighlightManager.HighlightButton(skill1Button);
+            else if (choice == "Skill 2")
+                buttonHighlightManager.HighlightButton(skill2Button);
+
         }
     }
 
@@ -114,9 +228,96 @@ public class ChargeGame : MonoBehaviour
     {
         roundActive = false;
         OpponentChoice();
+        int previousHearts = playerHearts;
+
+        
 
         if (!playerLockedIn)
             playerChoice = "Charge";
+
+         // Game Logic for Resolving Choices
+        if (playerChoice == "Attack" && opponentChoice == "Defend")
+        {
+            PlayDefendSound();
+        }
+        else if (opponentChoice == "Attack" && playerChoice == "Defend")
+        {
+            PlayDefendSound();
+        }
+        else if (playerChoice == "Skill 1" && opponentChoice == "Defend")
+        {
+            PlayBreakSound();
+        }
+        else if (opponentChoice == "Skill 1" && playerChoice == "Defend")
+        {
+            PlayBreakSound();
+        }
+        else if (playerChoice == "Skill 2" && opponentChoice == "Defend")
+        {
+            PlayDefendSound();
+        }
+        else if (opponentChoice == "Skill 2" && playerChoice == "Defend")
+        {
+            PlayDefendSound();
+        }
+        else if (playerChoice == "Skill 2" && opponentChoice == "Attack")
+        {
+            PlayBreakSound();
+        }
+        else if (opponentChoice == "Skill 2" && playerChoice == "Attack")
+        {
+            PlayBreakSound();
+        }
+        else if (playerChoice == "Attack" && opponentChoice == "Attack")
+        {
+            PlayBlockSound(); // Block sound for Attack vs. Attack
+        }
+        else if (playerChoice == "Skill 1" && opponentChoice == "Skill 1")
+        {
+            PlayExplosionSound(); // Block sound for Skill 1 vs. Skill 1
+        }
+        else if (playerChoice == "Skill 2" && opponentChoice == "Skill 2")
+        {
+            PlayBlockSound(); // Block sound for Skill 2 vs. Skill 2
+        }
+        else if (playerChoice == "Skill 1" && opponentChoice == "Skill 2")
+        {
+            PlayBlockSound(); // Block sound for Skill 1 vs. Skill 2
+        }
+        else if (playerChoice == "Skill 2" && opponentChoice == "Skill 1")
+        {
+            PlayBlockSound(); // Block sound for Skill 2 vs. Skill 1
+        }
+        else if (playerChoice == "Skill 1" && opponentChoice == "Attack")
+        {
+            PlayExplosionSound(); // Block sound for Skill 1 vs. Attack
+        }
+        else if (playerChoice == "Attack" && opponentChoice == "Skill 1")
+        {
+            PlayExplosionSound(); // Block sound for Attack vs. Skill 1
+        }
+        
+    
+        if (playerChoice == "Skill 1" && opponentChoice != "Skill 1" && opponentChoice != "Attack")
+            {
+                PlaySkill1Sound();
+            }     
+            else if (opponentChoice == "Skill 1" && playerChoice != "Skill 1" && playerChoice != "Attack")
+            {
+                PlaySkill1Sound();
+                
+            }
+
+        if (playerChoice == "Skill 2" && opponentChoice != "Skill 2" && opponentChoice != "Defend")
+            {
+                PlaySkill2Sound();
+            }     
+            else if (opponentChoice == "Skill 2" && playerChoice != "Skill 2" && playerChoice != "Defend")
+            {
+                PlaySkill2Sound();
+                
+            }
+
 
         // Handle insufficient charges for player
         if ((playerChoice == "Attack" && playerCharge < 1) || 
@@ -197,7 +398,10 @@ public class ChargeGame : MonoBehaviour
                 if (playerCharge > 0)
                 {
                     playerCharge--;
-                    if (opponentChoice != "Defend") opponentHearts--;
+                    if (opponentChoice != "Defend")
+                    {
+                        HandleAttack(true); // Call the method to reduce hearts and play sound
+                    }
                 }
             }
             else if (opponentChoice == "Attack")
@@ -242,23 +446,51 @@ public class ChargeGame : MonoBehaviour
             }
         }
 
-        if (playerChoice == "Charge") playerCharge++; // Increment charge when choosing to charge
+        if (playerChoice == "Charge")  
+        {
+            playerCharge++;
+            if (chargeSound != null)
+            {
+                chargeSound.Play();
+            }
+            else
+            {
+                Debug.LogWarning("ChargeSound is not assigned!");
+            } 
+        }// Increment charge when choosing to charge
         if (opponentChoice == "Charge") opponentCharge++; // Increment opponent charge similarly
 
+    
+        if (playerHearts < previousHearts)
+        {
+            damageScreen.SetActive(true);
+            damageScreenTimer = 0.3f; // Start timer for 0.3 seconds
+            if (damageSound != null) 
+            {
+                damageSound.PlayOneShot(damageSound.clip);
+
+            }
+        }
+
+        
+        
         CheckGameOver();
         ResetRound();
+        buttonHighlightManager.End();
+        
     }
 
-
+        
 
 
     void UpdateUI()
     {
         playerHeartsText.text = "Hearts: " + playerHearts;
         opponentHeartsText.text = "Hearts: " + opponentHearts;
-        playerChargeText.text = "Charge: " + playerCharge;
+        playerChargeText.text = "" + playerCharge;
         opponentChargeText.text = "Charge: " + opponentCharge;
         roundText.text = "Round: " + roundNumber;
+        
     }
 
     void ResetRound()
@@ -325,6 +557,34 @@ public class ChargeGame : MonoBehaviour
     public void OnSkill2Button()
     {
         PlayerChoice("Skill 2");
+    }
+
+    private void TriggerAttackAnimation()
+    {
+        // Existing logic for ending the round...
+
+        // Check if the player attacked this round
+        if (playerChoice == "Attack")
+        {
+            // Trigger the attack animation
+            playerAnimator.SetTrigger("Attack");
+        }
+
+        // Reset or transition back to default after some delay
+        StartCoroutine(ResetToIdleAnimation());
+    }
+
+    private IEnumerator ResetToIdleAnimation()
+    {
+        yield return new WaitForSeconds(1.0f); // Adjust delay as needed
+        playerAnimator.ResetTrigger("Attack");
+        // Optionally, trigger idle animation explicitly
+        // playerAnimator.SetTrigger("Idle");
+    }
+
+    private void ResetTriggers()
+    {
+        playerAnimator.ResetTrigger("Attack");
     }
 
 }
