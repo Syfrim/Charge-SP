@@ -40,6 +40,7 @@ public class ChargeGame : MonoBehaviour
     public TextMeshProUGUI roundText;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI resultText;
+    public TextMeshProUGUI opponentMoveText;
    
     public GameObject resultBackground;
     public GameObject damageScreen;
@@ -59,6 +60,9 @@ public class ChargeGame : MonoBehaviour
     public Button defendButton;
     public Button skill1Button;
     public Button skill2Button;
+    public Button playAgainButton;
+
+    
 
     public Animator playerAnimator;
 
@@ -66,6 +70,21 @@ public class ChargeGame : MonoBehaviour
     private float timer = 5f;
     private bool roundActive = true;
     private float damageScreenTimer = 0f;
+    private void ShowEndGameScreen(string resultMessage)
+    {
+        // Display end-game UI and set the result message
+        resultBackground.SetActive(true);
+        resultText.text = resultMessage;
+        roundActive = false; // Ensure the game stops running
+    }
+
+    void UpdateOpponentMoveText(string move)
+    {
+        if (opponentMoveText != null)
+        {
+            opponentMoveText.text = $"Opponent used {move}!";
+        }
+    }
 
     void HandleAttack(bool isPlayerAttack)
     {
@@ -77,6 +96,13 @@ public class ChargeGame : MonoBehaviour
                 Debug.Log("Playing attackSound");
                 attackSound.Play();
             }
+            if (playerAnimator != null)
+            {
+                // Trigger the attack animation
+                playerAnimator.SetTrigger("Attack");
+            }
+
+            
             else
             {
                 Debug.LogWarning("attackSound is not assigned!");
@@ -146,6 +172,10 @@ public class ChargeGame : MonoBehaviour
         skill2Button.onClick.AddListener(() => PlayerChoice("Skill 2"));
         resultBackground.SetActive(false);
         damageScreen.SetActive(false);
+        playAgainButton.gameObject.SetActive(false);
+
+        // Add a listener to restart the game
+        playAgainButton.onClick.AddListener(RestartGame);
     }
 
     void Update()
@@ -203,26 +233,92 @@ public class ChargeGame : MonoBehaviour
 
     void OpponentChoice()
     {
-        switch (roundNumber % 11)
+        if (roundNumber == 1)
         {
-            case 1: case 4: case 5: case 6: case 8: case 9: case 10:
-                opponentChoice = "Charge";
-                break;
-            case 2:
-                opponentChoice = "Attack";
-                break;
-            case 3:
-                opponentChoice = "Defend";
-                break;
-            case 7:
-                opponentChoice = "Skill 1";
-                break;
-            case 0:
-                opponentChoice = "Skill 2";
-                break;
+            // Always "Charge" on the first round
+            opponentChoice = "Charge";
         }
+        else
+        {
+            int randomFactor = Random.Range(1, 4); // Randomly adjusts decision
+            switch ((roundNumber + randomFactor) % 11)
+            {
+                case 1: case 4: case 5: case 6: case 8: case 9: case 10:
+                    opponentChoice = "Charge";
+                    break;
+                case 2:
+                    opponentChoice = "Attack";
+                    break;
+                case 3:
+                    opponentChoice = "Defend";
+                    break;
+                case 7:
+                    opponentChoice = "Skill 1";
+                    break;
+                case 0:
+                    opponentChoice = "Skill 2";
+                    break;
+            }
+
+            if (opponentCharge >= 3)
+            {
+                // Randomly decide between Skill 1 and Skill 2
+                float skillProbability = Random.value; 
+                if (skillProbability >= 0.5f)
+                {
+                    opponentChoice = "Skill 1";
+                }
+                else
+                {
+                    opponentChoice = "Skill 2";
+                }
+            }
+            else if (playerCharge == opponentCharge)
+            {
+                // Random choice between Attack, Defend, and Charge
+                float equalChargeProbability = Random.value;
+                if (equalChargeProbability < 0.4f)
+                {
+                    opponentChoice = "Attack";
+                }
+                else if (equalChargeProbability < 0.6f)
+                {
+                    opponentChoice = "Defend";
+                }
+                else
+                {
+                    opponentChoice = "Charge";
+                }
+            }
+            else if (playerCharge > opponentCharge && Random.value > 0.7f)
+            {
+                opponentChoice = "Defend"; // Defensive strategy if player has an advantage
+            }
+            else if (playerCharge > opponentCharge && Random.value > 0.6f)
+            {
+                opponentChoice = "Charge";
+            }
+            else if (playerCharge >= 3 && Random.value > 0.5f)
+            {
+                opponentChoice = "Attack";
+            }
+            else if (playerCharge < opponentCharge && Random.value > 0.6f)
+            {
+                opponentChoice = "Attack";
+            }
+            else
+            {
+                opponentChoice = "Charge"; // Default action to gain resources
+            }
+        }
+
+        UpdateOpponentMoveText(opponentChoice);
+
         opponentLockedIn = true;
     }
+
+
+
 
     void ProcessRound()
     {
@@ -356,14 +452,16 @@ public class ChargeGame : MonoBehaviour
         }
         else if (playerChoice == "Skill 2" && opponentChoice == "Attack")
         {
-            // Skill 2 blocks Attack
+            // Skill 2 breaks Attack
             if (playerCharge >= 3) playerCharge -= 3;
             if (opponentCharge > 0) opponentCharge--;
+            opponentHearts--;
         }
         else if (playerChoice == "Attack" && opponentChoice == "Skill 2")
         {
             // Skill 2 blocks Attack, and player takes damage
             if (playerCharge > 0) playerCharge--;
+            if (opponentCharge >= 3) opponentCharge -= 3;
             playerHearts--; // Player takes damage
         }
         else if (playerChoice == "Skill 1" && opponentChoice == "Skill 2")
@@ -390,6 +488,20 @@ public class ChargeGame : MonoBehaviour
             if (playerCharge >= 3) playerCharge -= 3;
             if (opponentCharge >= 3) opponentCharge -= 3;
         }
+        else if (playerChoice == "Defend" && opponentChoice == "Skill 2")
+        {
+            // Defend blocks skill 2
+            
+            if (opponentCharge >= 3) opponentCharge -= 3;
+        }
+        else if (playerChoice == "Skill 2" && opponentChoice == "Defend")
+        {
+            // Defend blocks skill 2
+            
+            if (playerCharge >= 3) playerCharge -= 3;
+        }
+
+        
         else
         {
             // Default logic for unblocked moves
@@ -487,7 +599,7 @@ public class ChargeGame : MonoBehaviour
     {
         playerHeartsText.text = "Hearts: " + playerHearts;
         opponentHeartsText.text = "Hearts: " + opponentHearts;
-        playerChargeText.text = "" + playerCharge;
+        playerChargeText.text = "Charge: " + playerCharge;
         opponentChargeText.text = "Charge: " + opponentCharge;
         roundText.text = "Round: " + roundNumber;
         
@@ -512,24 +624,22 @@ public class ChargeGame : MonoBehaviour
 
     void EndGame()
     {
-        roundActive = false;
-
-        resultBackground.SetActive(true);
-
-
         if (playerHearts <= 0)
         {
-            resultText.text = "DEFEAT";
+            ShowEndGameScreen("DEFEAT");
         }
         else if (opponentHearts <= 0)
         {
-            resultText.text = "VICTORY";
+            ShowEndGameScreen("VICTORY");
         }
         else if (roundNumber >= 100)
         {
-            resultText.text = "TIE GAME";
+            ShowEndGameScreen("TIE GAME");
         }
+        playAgainButton.gameObject.SetActive(true);
+        FindObjectOfType<EndGameManager>().ShowEndGameScreen();
     }
+
 
 
         // Add these methods to the existing ChargeGame script
@@ -568,6 +678,7 @@ public class ChargeGame : MonoBehaviour
         {
             // Trigger the attack animation
             playerAnimator.SetTrigger("Attack");
+          
         }
 
         // Reset or transition back to default after some delay
@@ -585,6 +696,30 @@ public class ChargeGame : MonoBehaviour
     private void ResetTriggers()
     {
         playerAnimator.ResetTrigger("Attack");
+    }
+
+    void RestartGame()
+    {
+        // Reset all game variables and UI for a new game
+        playerHearts = 3;
+        opponentHearts = 3;
+        playerCharge = 0;
+        opponentCharge = 0;
+        roundNumber = 1;
+        playerLockedIn = false;
+        opponentLockedIn = false;
+        timer = 5f;
+        roundActive = true;
+
+        // Hide the result UI and button
+        resultBackground.SetActive(false);
+        playAgainButton.gameObject.SetActive(false);
+
+        // Clear result text
+        resultText.text = "";
+
+        // Reset UI elements
+        UpdateUI();
     }
 
 }
