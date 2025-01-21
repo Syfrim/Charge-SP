@@ -143,6 +143,7 @@ Library: lib_burst_generated
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.Environments.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.Internal.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.Analytics.dll
+--root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Assembly-CSharp.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.2D.SpriteShape.Runtime.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.Scheduler.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.Registration.dll
@@ -155,7 +156,6 @@ Library: lib_burst_generated
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.Networking.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.InternalAPIEngineBridge.001.dll
---root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Assembly-CSharp.dll
 --root-assembly=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\Unity.Services.Core.Configuration.dll
 --assembly-folder=C:\Users\Chan Wei Feng\OneDrive\Desktop\Unity\Charge SP\Temp\StagingArea\Data\Managed\
 --pdb-search-paths=Temp/ManagedSymbols/
