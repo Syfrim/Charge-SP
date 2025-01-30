@@ -1,0 +1,24 @@
+git clone https://github.com/arikchakma/backend-projects.git
+cd backend-projects/task-tracker
+void OpponentChoice()
+    {
+        switch (roundNumber % 11)
+        {
+            case 1: case 4: case 5: case 6: case 8: case 9: case 10:
+                opponentChoice = "Charge";
+                break;
+            case 2:
+                opponentChoice = "Attack";
+                break;
+            case 3:
+                opponentChoice = "Defend";
+                break;
+            case 7:
+                opponentChoice = "Skill 1";
+                break;
+            case 0:
+                opponentChoice = "Skill 2";
+                break;
+        }
+        opponentLockedIn = true;
+    }

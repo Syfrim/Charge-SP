@@ -6,8 +6,6 @@ public class EndGameManager : MonoBehaviour
 {
     public GameObject endGamePanel; // Reference to the end-game UI panel
 
-  
-
     // Call this function when the game ends
     public void ShowEndGameScreen()
     {
@@ -24,6 +22,7 @@ public class EndGameManager : MonoBehaviour
 
     public void LoadMainMenu()
     {
+        Time.timeScale = 1; // Ensure time scale is reset
         SceneManager.LoadScene("OpeningScene");
     }
 }

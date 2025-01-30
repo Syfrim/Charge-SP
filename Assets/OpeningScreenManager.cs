@@ -14,32 +14,31 @@ public class OpeningScreenManager : MonoBehaviour
         // Initialize volume
         volumeSlider.value = AudioListener.volume;
         volumeSlider.onValueChanged.AddListener(SetVolume);
-        
     }
 
     public void PlayGame()
-    {   
-        
+    {
+        Time.timeScale = 1; // Ensure time scale is reset
         PlayButtonSound(); // Play button sound
         SceneManager.LoadScene("TutorialScene"); // Load the tutorial scene
     }
 
     public void LoadTutorialScene()
     {
+        Time.timeScale = 1; // Ensure time scale is reset
         PlayButtonSound(); // Play button sound
         Debug.Log("Play button clicked. Loading Tutorial Scene...");
         SceneManager.LoadScene("TutorialScene");
     }
 
     public void OpenSettings()
-    {   
-        
+    {
         PlayButtonSound(); // Play button sound
         settingsPanel.SetActive(true);
     }
 
     public void CloseSettings()
-    {   
+    {
         PlayButtonSound(); // Play button sound
         settingsPanel.SetActive(false);
     }
@@ -54,8 +53,7 @@ public class OpeningScreenManager : MonoBehaviour
     private void PlayButtonSound()
     {
         if (buttonSound != null)
-        {   
-            
+        {
             buttonSound.Play(); // Play the button click sound
         }
     }

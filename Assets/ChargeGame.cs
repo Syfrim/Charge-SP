@@ -20,6 +20,14 @@ public class ChargeGame : MonoBehaviour
 
     public ButtonHighlightManager buttonHighlightManager;
 
+    private bool debugMode = false;
+    private string forcedOpponentChoice = "Charge";
+    void ToggleDebugMode()
+    {
+        debugMode = !debugMode;
+        Debug.Log($"Debug Mode: {(debugMode ? "ON" : "OFF")} - Opponent will {(debugMode ? "always charge" : "act normally")}");
+    }
+
 
     // Game Variables
     private int playerHearts = 3;
@@ -54,6 +62,8 @@ public class ChargeGame : MonoBehaviour
     public AudioSource explosionSound;
     public AudioSource skill1Sound;
     public AudioSource skill2Sound;
+    public AudioSource NightBorneDeathSound;
+    public AudioSource NightBorneDefendSound;
 
     public Button chargeButton;
     public Button attackButton;
@@ -65,17 +75,22 @@ public class ChargeGame : MonoBehaviour
     
 
     public Animator playerAnimator;
+    public Animator effectAnimator;
+
+   
+
+    
 
     // Timer
-    private float timer = 5f;
+    private float timer = 3f;
     private bool roundActive = true;
     private float damageScreenTimer = 0f;
-    private void ShowEndGameScreen(string resultMessage)
+    
+    
+    void ShowEndGameScreen(string result)
     {
-        // Display end-game UI and set the result message
+        resultText.text = result;
         resultBackground.SetActive(true);
-        resultText.text = resultMessage;
-        roundActive = false; // Ensure the game stops running
     }
 
     void UpdateOpponentMoveText(string move)
@@ -90,26 +105,58 @@ public class ChargeGame : MonoBehaviour
     {
         if (isPlayerAttack)
         {
-            opponentHearts--;
-            if (attackSound != null)
+            if (opponentChoice != "Defend" && opponentChoice != "Skill 1" && opponentChoice != "Attack")
             {
-                Debug.Log("Playing attackSound");
-                attackSound.Play();
-            }
-            if (playerAnimator != null)
-            {
-                // Trigger the attack animation
-                playerAnimator.SetTrigger("Attack");
+            
+                opponentHearts--;
+                if (attackSound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    attackSound.Play();
+                }
+                if (playerAnimator != null)
+                {
+                    // Trigger the attack animation
+                    playerAnimator.SetTrigger("Attack");
+                }
+
+                
+                else
+                {
+                    Debug.LogWarning("attackSound is not assigned!");
+                }
             }
 
-            
             else
             {
-                Debug.LogWarning("attackSound is not assigned!");
+                if (attackSound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    attackSound.Play();
+                }
+                if (playerAnimator != null)
+                {
+                    // Trigger the attack animation
+                    playerAnimator.SetTrigger("Attack");
+                } 
             }
-        }
+        }  
     }
 
+    void PlayNightBorneDeathSound()
+    {
+        if (NightBorneDeathSound != null)
+        {
+            NightBorneDeathSound.Play(); // Play the defend sound effect
+        }
+    }
+    void PlayNightBorneDefendSound()
+    {
+        if (NightBorneDefendSound != null)
+        {
+            NightBorneDefendSound.Play(); // Play the defend sound effect
+        }
+    }
     void PlayDefendSound()
     {
         if (defendSound != null)
@@ -149,7 +196,6 @@ public class ChargeGame : MonoBehaviour
             skill1Sound.Play(); // Play the sound effect for Skill 1
         }
     }
-
     void PlaySkill2Sound()
     {
         if (skill2Sound != null)
@@ -158,8 +204,127 @@ public class ChargeGame : MonoBehaviour
         }
     }
 
+   
 
+    void HandleSkill2(bool isPlayerSkill2)
+    {
+        if (isPlayerSkill2)
+        {
+            if (opponentChoice != "Defend" && opponentChoice != "Skill 1")
+            {
+            
+                opponentHearts--;
+                if (skill2Sound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    skill2Sound.Play();
+                }
+                if (playerAnimator != null)
+                {
+                    // Trigger the attack animation
+                    playerAnimator.SetTrigger("Skill_2");
+                }
+                if (effectAnimator != null)
+                {
+                    effectAnimator.SetTrigger("Skill_2_Explosion");
+                }
 
+                
+                else
+                {
+                    Debug.LogWarning("attackSound is not assigned!");
+                }
+            }
+
+            else
+            {
+                if (skill2Sound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    skill2Sound.Play();
+                }
+                if (playerAnimator != null)
+                {
+                    // Trigger the attack animation
+                    playerAnimator.SetTrigger("Skill_2");
+                } 
+            }
+        } 
+    }
+
+    void HandleSkill1(bool isPlayerSkill1)
+    {
+        if (isPlayerSkill1)
+        {
+            if (opponentChoice != "Attack" && opponentChoice != "Skill 1")
+            {
+            
+                opponentHearts--;
+                if (skill1Sound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    skill1Sound.Play();
+                }
+                if (playerAnimator != null)
+                {
+                    // Trigger the attack animation
+                    playerAnimator.SetTrigger("Skill_1");
+                }
+                if (effectAnimator != null)
+                {
+                    effectAnimator.SetTrigger("Skill_1_Explosion");
+                }
+
+                
+                else
+                {
+                    Debug.LogWarning("attackSound is not assigned!");
+                }
+            }
+
+            else
+            {
+                if (skill1Sound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    skill1Sound.Play();
+                }
+                if (playerAnimator != null)
+                {
+                    // Trigger the attack animation
+                    playerAnimator.SetTrigger("Skill_1");
+                } 
+            }
+        } 
+    }
+
+    void HandleDefend(bool isPlayerDefend)
+    {
+        if (isPlayerDefend)
+        {
+            
+
+            if (playerAnimator != null)
+            {
+                // Trigger the attack animation
+                playerAnimator.SetTrigger("Defend");
+            }
+            if (NightBorneDefendSound != null)
+            {
+                Debug.Log("Playing skill1Sound");
+                NightBorneDefendSound.Play();
+            }
+        
+            
+            
+           
+            
+            else
+            {
+                Debug.LogWarning("defend is not assigned!");
+            }
+        }
+    }
 
     void Start()
     {
@@ -179,7 +344,11 @@ public class ChargeGame : MonoBehaviour
     }
 
     void Update()
-    {
+    {   
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            ToggleDebugMode();
+        }
         if (roundActive)
         {
             timer -= Time.deltaTime;
@@ -193,7 +362,7 @@ public class ChargeGame : MonoBehaviour
                 ProcessRound();
                 roundNumber++; // Increment round number
                 Debug.Log("Round Number: " + roundNumber); // Debug check
-                timer = 5f; // Reset timer explicitly after processing the round
+                timer = 3f; // Reset timer explicitly after processing the round
                 UpdateUI(); // Update UI to reflect the new round number
             }
         }
@@ -232,7 +401,12 @@ public class ChargeGame : MonoBehaviour
     }
 
     void OpponentChoice()
-    {
+    {   
+        if (debugMode)
+        {
+            opponentChoice = forcedOpponentChoice;
+            return;
+        }
         if (roundNumber == 1)
         {
             // Always "Charge" on the first round
@@ -259,18 +433,35 @@ public class ChargeGame : MonoBehaviour
                     opponentChoice = "Skill 2";
                     break;
             }
+            
+            if (opponentCharge == 0)
+            {
+                float skillProbability = Random.value; 
+                if (skillProbability < 0.6f)
+                {
+                    opponentChoice = "Charge";
+                }
+                else
+                {
+                    opponentChoice = "Defend";
+                }
+            }
 
             if (opponentCharge >= 3)
             {
                 // Randomly decide between Skill 1 and Skill 2
                 float skillProbability = Random.value; 
-                if (skillProbability >= 0.5f)
+                if (skillProbability < 0.4f)
                 {
                     opponentChoice = "Skill 1";
                 }
-                else
+                else if (skillProbability < 0.8f)
                 {
                     opponentChoice = "Skill 2";
+                }
+                else 
+                {
+                    opponentChoice = "Attack";
                 }
             }
             else if (playerCharge == opponentCharge)
@@ -335,75 +526,101 @@ public class ChargeGame : MonoBehaviour
         if (playerChoice == "Attack" && opponentChoice == "Defend")
         {
             PlayDefendSound();
+            HandleAttack(true);
+
         }
         else if (opponentChoice == "Attack" && playerChoice == "Defend")
         {
             PlayDefendSound();
+            HandleDefend(true);
+        }
+        else if (opponentChoice == "Defend" && playerChoice == "Defend")
+        {
+    
+            HandleDefend(true);
+        }
+        else if (opponentChoice == "Charge" && playerChoice == "Defend")
+        {
+            
+            HandleDefend(true);
         }
         else if (playerChoice == "Skill 1" && opponentChoice == "Defend")
         {
             PlayBreakSound();
+            HandleSkill1(true);
         }
         else if (opponentChoice == "Skill 1" && playerChoice == "Defend")
         {
             PlayBreakSound();
+            HandleDefend(true);
         }
         else if (playerChoice == "Skill 2" && opponentChoice == "Defend")
         {
             PlayDefendSound();
+            HandleSkill2(true);
         }
         else if (opponentChoice == "Skill 2" && playerChoice == "Defend")
         {
             PlayDefendSound();
+            HandleDefend(true);
         }
         else if (playerChoice == "Skill 2" && opponentChoice == "Attack")
         {
             PlayBreakSound();
+            HandleSkill2(true);
         }
         else if (opponentChoice == "Skill 2" && playerChoice == "Attack")
         {
             PlayBreakSound();
+            HandleAttack(true);
         }
         else if (playerChoice == "Attack" && opponentChoice == "Attack")
         {
-            PlayBlockSound(); // Block sound for Attack vs. Attack
+            PlayBlockSound();
+            HandleAttack(true); // Block sound for Attack vs. Attack
         }
         else if (playerChoice == "Skill 1" && opponentChoice == "Skill 1")
         {
-            PlayExplosionSound(); // Block sound for Skill 1 vs. Skill 1
+            PlayExplosionSound();
+            HandleSkill1(true); // Block sound for Skill 1 vs. Skill 1
         }
         else if (playerChoice == "Skill 2" && opponentChoice == "Skill 2")
         {
-            PlayBlockSound(); // Block sound for Skill 2 vs. Skill 2
+            PlayBlockSound();
+            HandleSkill2(true); // Block sound for Skill 2 vs. Skill 2
         }
         else if (playerChoice == "Skill 1" && opponentChoice == "Skill 2")
         {
-            PlayBlockSound(); // Block sound for Skill 1 vs. Skill 2
+            PlayBlockSound();
+            HandleSkill1(true); // Block sound for Skill 1 vs. Skill 2
         }
         else if (playerChoice == "Skill 2" && opponentChoice == "Skill 1")
         {
-            PlayBlockSound(); // Block sound for Skill 2 vs. Skill 1
+            PlayBlockSound();
+            HandleSkill2(true); // Block sound for Skill 2 vs. Skill 1
         }
         else if (playerChoice == "Skill 1" && opponentChoice == "Attack")
         {
-            PlayExplosionSound(); // Block sound for Skill 1 vs. Attack
+            PlayExplosionSound();
+            HandleSkill1(true); // Block sound for Skill 1 vs. Attack
         }
         else if (playerChoice == "Attack" && opponentChoice == "Skill 1")
         {
-            PlayExplosionSound(); // Block sound for Attack vs. Skill 1
+            PlayExplosionSound();
+            HandleAttack(true); // Block sound for Attack vs. Skill 1
         }
         
     
         if (playerChoice == "Skill 1" && opponentChoice != "Skill 1" && opponentChoice != "Attack")
             {
                 PlaySkill1Sound();
+                
             }     
             else if (opponentChoice == "Skill 1" && playerChoice != "Skill 1" && playerChoice != "Attack")
             {
                 PlaySkill1Sound();
                 
             }
-
         if (playerChoice == "Skill 2" && opponentChoice != "Skill 2" && opponentChoice != "Defend")
             {
                 PlaySkill2Sound();
@@ -411,8 +628,8 @@ public class ChargeGame : MonoBehaviour
             else if (opponentChoice == "Skill 2" && playerChoice != "Skill 2" && playerChoice != "Defend")
             {
                 PlaySkill2Sound();
-                
             }
+        
 
 
         // Handle insufficient charges for player
@@ -529,7 +746,10 @@ public class ChargeGame : MonoBehaviour
                 if (playerCharge >= 3)
                 {
                     playerCharge -= 3;
-                    if (opponentChoice != "Skill 1" && opponentChoice != "Attack") opponentHearts--;
+                    if (opponentChoice != "Skill 1" && opponentChoice != "Attack")
+                    {
+                        HandleSkill1(true);
+                    }
                 }
             }
             else if (opponentChoice == "Skill 1")
@@ -545,15 +765,23 @@ public class ChargeGame : MonoBehaviour
                 if (playerCharge >= 3)
                 {
                     playerCharge -= 3;
-                    if (opponentChoice != "Skill 2") opponentHearts--;
+                    if (opponentChoice != "Skill 2" && opponentChoice != "Defend")  
+                    {
+                        
+                        HandleSkill2(true); // Call the method to reduce hearts and play sound
+                    
+                    }
+
                 }
             }
+
+        
             else if (opponentChoice == "Skill 2")
             {
                 if (opponentCharge >= 3)
                 {
                     opponentCharge -= 3;
-                    if (playerChoice != "Skill 2") playerHearts--;
+                    if (playerChoice != "Skill 2" && playerChoice != "Defend") playerHearts--;
                 }
             }
         }
@@ -564,6 +792,7 @@ public class ChargeGame : MonoBehaviour
             if (chargeSound != null)
             {
                 chargeSound.Play();
+                playerAnimator.SetTrigger("Charge");
             }
             else
             {
@@ -577,9 +806,11 @@ public class ChargeGame : MonoBehaviour
         {
             damageScreen.SetActive(true);
             damageScreenTimer = 0.3f; // Start timer for 0.3 seconds
+            playerAnimator.SetTrigger("Damage Taken");
             if (damageSound != null) 
             {
                 damageSound.PlayOneShot(damageSound.clip);
+                
 
             }
         }
@@ -626,20 +857,27 @@ public class ChargeGame : MonoBehaviour
     {
         if (playerHearts <= 0)
         {
-            ShowEndGameScreen("DEFEAT");
+            playerAnimator.SetTrigger("Death");
+            PlayNightBorneDeathSound();
+            StartCoroutine(DelayedShowEndGameScreen("DEFEAT"));
         }
         else if (opponentHearts <= 0)
         {
-            ShowEndGameScreen("VICTORY");
+            StartCoroutine(DelayedShowEndGameScreen("VICTORY"));
         }
         else if (roundNumber >= 100)
         {
-            ShowEndGameScreen("TIE GAME");
+            StartCoroutine(DelayedShowEndGameScreen("TIE GAME"));
         }
+    }
+
+    private IEnumerator DelayedShowEndGameScreen(string result)
+    {
+        yield return new WaitForSeconds(2.25f); // Wait for 3 seconds
+        ShowEndGameScreen(result);
         playAgainButton.gameObject.SetActive(true);
         FindObjectOfType<EndGameManager>().ShowEndGameScreen();
     }
-
 
 
         // Add these methods to the existing ChargeGame script
@@ -669,7 +907,7 @@ public class ChargeGame : MonoBehaviour
         PlayerChoice("Skill 2");
     }
 
-    private void TriggerAttackAnimation()
+    private void TriggerAnimation()
     {
         // Existing logic for ending the round...
 
@@ -681,14 +919,24 @@ public class ChargeGame : MonoBehaviour
           
         }
 
+        if (playerChoice == "Skill 2")
+        {
+            // Trigger the attack animation
+            playerAnimator.SetTrigger("Skill_2");
+          
+        }
+        
+
         // Reset or transition back to default after some delay
         StartCoroutine(ResetToIdleAnimation());
     }
 
+    
+
     private IEnumerator ResetToIdleAnimation()
     {
-        yield return new WaitForSeconds(1.0f); // Adjust delay as needed
-        playerAnimator.ResetTrigger("Attack");
+        yield return new WaitForSeconds(4.0f); // Adjust delay as needed
+        playerAnimator.SetTrigger("Idle");
         // Optionally, trigger idle animation explicitly
         // playerAnimator.SetTrigger("Idle");
     }
@@ -696,6 +944,8 @@ public class ChargeGame : MonoBehaviour
     private void ResetTriggers()
     {
         playerAnimator.ResetTrigger("Attack");
+        playerAnimator.ResetTrigger("Skill_2");
+        playerAnimator.ResetTrigger("Skill_1");
     }
 
     void RestartGame()
