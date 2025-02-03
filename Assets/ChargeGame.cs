@@ -77,6 +77,8 @@ public class ChargeGame : MonoBehaviour
     public Animator playerAnimator;
     public Animator effectAnimator;
 
+    public Animator opponentAnimator;
+
    
 
     
@@ -105,7 +107,7 @@ public class ChargeGame : MonoBehaviour
     {
         if (isPlayerAttack)
         {
-            if (opponentChoice != "Defend" && opponentChoice != "Skill 1" && opponentChoice != "Attack")
+            if (opponentChoice != "Defend" && opponentChoice != "Skill 1" && opponentChoice != "Attack" && opponentChoice != "Skill 2")
             {
             
                 opponentHearts--;
@@ -325,6 +327,52 @@ public class ChargeGame : MonoBehaviour
             }
         }
     }
+    void HandleAttack1(bool isOpponentAttack)
+    {
+        if (isOpponentAttack)
+        {
+            if (playerChoice != "Defend" && playerChoice != "Skill 1" && playerChoice != "Attack" && playerChoice != "Skill 2")
+            {
+            
+                playerHearts--;
+                if (attackSound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    attackSound.Play();
+                }
+                if (opponentAnimator != null)
+                {
+                    // Trigger the attack animation
+                    opponentAnimator.SetTrigger("Attack");
+                }
+                if (effectAnimator != null)
+                {
+                    effectAnimator.SetTrigger("Opponent_Attack_Explosion");
+                }
+
+
+                
+                else
+                {
+                    Debug.LogWarning("attackSound is not assigned!");
+                }
+            }
+
+            else
+            {
+                if (attackSound != null)
+                {
+                    Debug.Log("Playing attackSound");
+                    attackSound.Play();
+                }
+                if (opponentAnimator != null)
+                {
+                    // Trigger the attack animation
+                    opponentAnimator.SetTrigger("Attack");
+                } 
+            }
+        }  
+    }
 
     void Start()
     {
@@ -522,6 +570,8 @@ public class ChargeGame : MonoBehaviour
         if (!playerLockedIn)
             playerChoice = "Charge";
 
+        
+
          // Game Logic for Resolving Choices
         if (playerChoice == "Attack" && opponentChoice == "Defend")
         {
@@ -529,10 +579,15 @@ public class ChargeGame : MonoBehaviour
             HandleAttack(true);
 
         }
+        else if (opponentChoice == "Attack" && playerChoice == "Charge")
+        {
+            HandleAttack1(true);
+        }
         else if (opponentChoice == "Attack" && playerChoice == "Defend")
         {
             PlayDefendSound();
             HandleDefend(true);
+            HandleAttack1(true);
         }
         else if (opponentChoice == "Defend" && playerChoice == "Defend")
         {
@@ -568,6 +623,7 @@ public class ChargeGame : MonoBehaviour
         {
             PlayBreakSound();
             HandleSkill2(true);
+            HandleAttack1(true);
         }
         else if (opponentChoice == "Skill 2" && playerChoice == "Attack")
         {
@@ -578,6 +634,7 @@ public class ChargeGame : MonoBehaviour
         {
             PlayBlockSound();
             HandleAttack(true); // Block sound for Attack vs. Attack
+            HandleAttack1(true);
         }
         else if (playerChoice == "Skill 1" && opponentChoice == "Skill 1")
         {
@@ -603,6 +660,7 @@ public class ChargeGame : MonoBehaviour
         {
             PlayExplosionSound();
             HandleSkill1(true); // Block sound for Skill 1 vs. Attack
+            HandleAttack1(true);
         }
         else if (playerChoice == "Attack" && opponentChoice == "Skill 1")
         {
